@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="shortcut icon" type="image/x-icon" href="<?=base_url()?>img/logo white.png" />
-    <title>Login Banksampah</title>
+    <title>Reset Password</title>
 </head>
 <style>
 .background{
@@ -16,7 +16,7 @@
 
 .Panel{
     width: 370px;
-    height: 550px; 
+    height: 350px; 
     background: white;
     border-top-left-radius: 30px; 
     border-top-right-radius: 30px;
@@ -46,7 +46,7 @@
 }
 
 .tLogin{
-    top: 35px;
+    top: 15px;
     text-align: center;
     position: relative;
     color: #333333; 
@@ -66,7 +66,7 @@
 
 .Password{
     left: 25px;
-    top: 100px; 
+    top: 70px; 
     position: relative; 
     color: #333333; 
     font-size: 15px;  
@@ -83,7 +83,7 @@
 
 .btn{
     border-radius: 5mm;
-    top: 180px;
+    top: 120px;
     position: relative;
     background-color: #00926E;
 }
@@ -127,66 +127,26 @@
     text-decoration: none;
 }
 
-.LupaPassword{
-    font-size: 15px;
-    margin-left: 115px;
-    top: 90px; 
-    position: relative;
-}
-
 </style>
 <body>
-    <?php
-        
-    ?>
     <div class="background col justify-content-center">
         <div class="row justify-content-center">
-            <div class="SelamatDatangKembali">
-                Selamat Datang <br> Kembali
-            </div>
             <div class="SilahkanMasukanUsernameDanPasswordKamu w-75">
-                Silahkan Masukkan Username <br> dan Password Kamu!
+                Silahkan Masukkan Emailmu <br> Untuk merubah password
             </div>
         </div>
-        <form action="<?=base_url('auth/cekLogin') ?>" method="post">
+        <form action="<?= base_url('auth/check_email') ?>" method="post">
             <div class="row justify-content-center">
                 <div class="Panel">
-                    <?php
-                        $success = $this->session->flashdata('success');
-                        $failed = $this->session->flashdata('failed');
-                        if(isset($failed)){
-                            echo '<div class="alert alert-danger" role="alert">'.$failed.'</div>';
-                        } else if(isset($success)){
-                            echo '<div class="alert alert-success" role="alert">'.$success.'</div>';
-                        }
-                    ?>
-                    <div class="tLogin">Login</div>
+                    <div class="tLogin">Reset Password</div>
                     <div class="row">
-                        <div class="Username">Username
-                            <input type="text" class="form-control" name="username" placeholder="Masukkan Username">
-                            <small class="text-danger"><?= form_error('username') ?></small>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="Password">Password
-                            <input type="password" class="form-control" name="password" placeholder="Masukkan Password">
-                            <small class="text-danger"><?= form_error('password') ?></small>
+                        <div class="Password">Email
+                            <input type="email" class="form-control" name="email" placeholder="Masukkan email">
+                            <small class="text-danger"><?= form_error('email') ?></small>
                         </div>
                     </div>
                     <div class="row justify-content-center">
-                        <input type="submit" class="tbLogin btn w-50 " value="Login"></input>
-                    </div>
-                    <div class="LupaPassword">
-                        <a href="<?=base_url('auth/resetpassword') ?>">Lupa Password?</a>
-                    </div>
-                    <div class="col d-flex justify-content-between ">
-                        <div class="BelumPunyaAkun row justify-content-center">Belum Punya Akun?<br>
-                            <a href="<?=base_url()?>auth/goRegister" class="link row justify-content-center">SignUp</a>
-                        </div>
-                        <div class="stick"></div>
-                        <div class="InginJadiImigran row justify-content-center">Tidak ingin login?<br>
-                            <a href="<?=base_url('auth/guestAccess') ?>" class="link row justify-content-center">Guest</a>
-                        </div>
+                        <input type="submit" class="tbLogin btn w-50 " value="Submit"></input>
                     </div>
                 </div>
             </div>

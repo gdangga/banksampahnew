@@ -170,8 +170,8 @@
              $config['protocol'] = "smtp";
              $config['smtp_host'] = "smtp.gmail.com";
              $config['smtp_port'] = "465";
-             $config['smtp_user'] = "igowisnuchannel@gmail.com";
-             $config['smtp_pass'] = "envz xfke agmy mnqa";
+             $config['smtp_user'] = "jimbaran361@gmail.com";
+             $config['smtp_pass'] = "hfvj qfwc qfbv qlyo";
              $config['smtp_crypto'] = "ssl";
              $config['charset'] = "utf-8";
              $config['mailtype'] = "html";
@@ -181,7 +181,7 @@
  
              //set
              $this->email->initialize($config);
-             $this->email->from('no-replay@igowisnuchannel@gmail.com','BANK SAMPAH');
+             $this->email->from('no-replay@jimbaran361@gmail.com','BANK SAMPAH');
              $this->email->to($email);
              $this->email->subject("verifikasi email");
              $this->email->message($message);
@@ -226,6 +226,103 @@
             $user = $this->db->get();
             return $user;
         }
+
+        public function requestPasswordReset($email) {
+            $user = $this->db->get_where('user', ['email' => $email])->row();
+    
+            if ($user) {
+                // Generate a secure random token and expiry time (1 hour from now)
+                $token = bin2hex(random_bytes(32));
+                $expiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
+    
+                // Store the reset token and expiry in the database
+                $this->db->where('email', $email)
+                         ->update('user', ['reset_token' => $token, 'reset_token_expiry' => $expiry]);
+    
+                // Send reset email
+                return $this->sendPasswordResetEmail($email, $token);
+            } else {
+                return "Email tidak ditemukan.";
+            }
+        }
+    
+        // Send Password Reset Email
+        public function sendPasswordResetEmail($email, $token) {
+            $resetLink = "https://localhost/banksampahnew/index.php/auth/reset_password?token={$token}"; 
+    
+            $message = "
+            <html>
+            <head>
+              <title>Password Reset</title>
+              <style>
+                /* Add your email styles here */
+              </style>
+            </head>
+            <body>
+              <p>Click the following link to reset your password:</p>
+              <a href='$resetLink'>Reset Password</a>
+            </body>
+            </html>
+            ";
+    
+            $config['useragent'] = "Bank Sampah";
+            $config['mailpath'] = "usr/bin/sendmail";
+            $config['protocol'] = "smtp";
+            $config['smtp_host'] = "smtp.gmail.com";
+            $config['smtp_port'] = "465";
+            $config['smtp_user'] = "jimbaran361@gmail.com";
+            $config['smtp_pass'] = "hfvj qfwc qfbv qlyo";
+            $config['smtp_crypto'] = "ssl";
+            $config['charset'] = "utf-8";
+            $config['mailtype'] = "html";
+            $config['newline'] = "\r\n";
+            $config['smtp_timeout'] = 30;
+            $config['wordwrap'] = TRUE;
+    
+            $this->email->initialize($config);
+            $this->email->from('no-reply@jimbaran361.com', 'BANK SAMPAH');
+            $this->email->to($email);
+            $this->email->subject("Password Reset");
+            $this->email->message($message);
+    
+            if ($this->email->send()) {
+                return "Email reset password terkirim ke $email";
+            } else {
+                return "Gagal mengirim email reset password.";
+            }
+        }
+    
+        // Step 2: Verify Reset Token
+        public function verifyResetToken($token) {
+            $user = $this->db->get_where('user', ['reset_token' => $token])->row();
+    
+            if ($user && strtotime($user->reset_token_expiry) > time()) {
+                return $user->email;
+            } else {
+                return false;
+            }
+        }
+    
+        // Step 3: Reset Password
+        public function resetPassword($token, $newPassword) {
+            $user = $this->db->get_where('user', ['reset_token' => $token])->row();
+    
+            if ($user && strtotime($user->reset_token_expiry) > time()) {
+                $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
+    
+                $this->db->where('reset_token', $token)
+                         ->update('user', [
+                             'password' => $passwordHash,
+                             'reset_token' => null,
+                             'reset_token_expiry' => null
+                         ]);
+    
+                return "Password berhasil direset.";
+            } else {
+                return "Token tidak valid atau sudah kadaluarsa.";
+            }
+        }
+    
     
     }
     

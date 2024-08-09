@@ -19,6 +19,12 @@ ob_start();
             
         }
 
+        public function resetpassword()
+        {
+            $this->load->view('banksampah/resetpass');
+            
+        }
+
         public function login(){
             $this->load->view('banksampah/login');
         }
@@ -27,6 +33,46 @@ ob_start();
             $this->load->view('banksampah/regisGuest');
         }
 
+        public function check_email() {
+            $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+        
+            if ($this->form_validation->run() == FALSE) {
+                $this->load->view('banksampah/resetpass');
+            } else {
+                $email = $this->input->post('email');
+                $user = $this->db->get_where('user', ['email' => $email])->row();
+        
+                if ($user) {
+                    $data['email'] = $email;
+                    $this->load->view('banksampah/reset_password', $data);
+                } else {
+                    $this->load->view('banksampah/resetpass');
+                }
+            }
+        }
+
+        public function reset_password() {
+            $email = $this->input->post('email');
+            $old_password = $this->input->post('old_password');
+            $new_password = $this->input->post('new_password');
+        
+            // Fetch the user by email
+            $user = $this->db->get_where('user', ['email' => $email])->row();
+        
+            if ($user && password_verify($old_password, $user->password)) {
+                // Update with the new password
+                $this->db->update('user', [
+                    'password' => password_hash($new_password, PASSWORD_DEFAULT)
+                ], ['email' => $email]);
+        
+                $this->load->view('banksampah/login');
+            } else {
+                $this->load->view('banksampah/resetpass');
+            }
+        }
+        
+        
+        
         public function mail(){
             $rules = $this->m_auth->validation();
             $this->form_validation->set_rules($rules);

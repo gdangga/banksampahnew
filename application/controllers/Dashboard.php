@@ -8,6 +8,9 @@
                 // Load model BeritaModel
                 $this->load->model('m_dashboard');
                 $this->load->library('pagination');
+                $this->load->helper(array('form', 'url'));
+                $this->load->library('upload');
+
 
                 if(!$this->session->userdata('role') == 'admin'){
                     redirect('auth');
@@ -269,6 +272,118 @@
             $this->load->view('template/footer');
             
         }
+
+        public function loadSampah(){
+
+
+             //get data count
+             $sampahCount = $this->m_dashboard->getSampahCount();
+ 
+             // Pagination Configuration
+             $config['base_url'] = base_url().'dashboard/loadSampah';
+             $config['use_page_numbers'] = TRUE;
+             $config['total_rows'] = $sampahCount;
+             $config['per_page'] = 7;
+ 
+              // Initialize
+             $this->pagination->initialize($config);
+ 
+             // Initialize data Array and pagination
+             $page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 1;
+             
+            
+             $start = ($page - 1) * $config['per_page']; 
+ 
+             $data['sampah'] = $this->m_dashboard->getDataSampah($config['per_page'],$start);
+             $data['pagination'] = $this->pagination->create_links();
+ 
+             $username = $this->session->userdata('username');
+             $top['username'] = $username;
+ 
+             $top['adminCount'] = $this->m_dashboard->getAdminCount();
+             $top['nasabahCount'] = $this->m_dashboard->getNasabahCount();
+             $top['transaksiCount'] = $this->m_dashboard->getTransaksiCount();
+             $top['artikelCount'] = $this->m_dashboard->getArtikelCount();
+ 
+             $this->load->view('template/header');
+             $this->load->view('template/sidebar');
+             $this->load->view('template/topbar', $top);
+             $this->load->view('banksampah/tabelsampahadmin', $data);
+             $this->load->view('template/footer');
+        }
+
+        public function tambahNasabah(){
+            $this->load->model('M_auth');
+
+            $rules = $this->M_auth->validation_fromadmin();
+            $this->form_validation->set_rules($rules);
+            
+            if ($this->form_validation->run() == FALSE) {
+                $username = $this->session->userdata('username');
+                $top['username'] = $username;
+
+                $top['adminCount'] = $this->m_dashboard->getAdminCount();
+                $top['nasabahCount'] = $this->m_dashboard->getNasabahCount();
+                $top['transaksiCount'] = $this->m_dashboard->getTransaksiCount();
+                $top['artikelCount'] = $this->m_dashboard->getArtikelCount();
+
+                $this->load->view('template/header');
+                $this->load->view('template/sidebar');
+                $this->load->view('template/topbar', $top);
+                $this->load->view('banksampah/tabeltransaksi');
+                $this->load->view('template/footer');
+            } else {             
+                $id_user = $this->M_auth->Add_fromadmin();
+                $this->M_auth->registerTabungan($id_user);
+                redirect('dashboard/loadNasabah');
+            }
+        }
+
+        public function importNasabah(){
+            $config['upload_path'] = './uploads/';
+            $config['allowed_types'] = 'xlsx';
+            $config['max_size'] = 10000;
+
+            $this->upload->initialize($config);
+
+            if (!$this->upload->do_upload('excel_nasabah')) {
+                $error = array('error' => $this->upload->display_errors());
+                echo 'errrpr';
+            } else {
+                $data = array('upload_data' => $this->upload->data());
+                $file_path = './uploads/' . $data['upload_data']['file_name'];
+
+                $this->loadExcel($file_path);
+            }   
+        }
+
+        public function loadExcel($file_path) {
+            $this->load->model('M_auth');
+
+            $reader = new \PhpOffice\PhpSpreadsheet\Reader\xlsx();
+            $spreadsheet = $reader->load($file_path);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+    
+            foreach ($sheetData as $key => $row) {
+                if ($key == 0) continue; // Skip header row
+                $data = array(
+                    'username' => $row[1],
+                    'password' => $row[2],
+                    'notelp' => $row[3],
+                    'email' => $row[4],
+                    'tempat_lahir' => $row[5],
+                    'tanggal_lahir' => $row[6],
+                    'alamat' => $row[7],
+                    'isverif' => '1'
+                );
+                $userid = $this->M_auth->importnasabah($data);
+                $this->M_auth->registerTabungan($userid);
+            }
+            redirect('dashboard/loadNasabah');
+            
+        }
+
+
     
     }
     

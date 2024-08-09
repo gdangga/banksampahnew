@@ -2,14 +2,187 @@
     <!-- Nasabah -->
     <div id="nasabah-table-container" class="containered pt-3">
         <div class="row mx-2">
-                <h3 class="fs-4 mb-3">Tabel Nasabah</h3>
-                <div class="col-lg-6">
-                    <form action="<?=base_url()?>dashboard/loadNasabah" method="post">
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Enter username/email" id="keyword" name="keyword">
-                            <input type="submit" class="btn btn-primary" id="submit" name="submit" value="search"></input>
+
+                <!-- Modal Tambah Nasabah -->
+                <div
+                    class="modal fade"
+                    id="tambahNasabahModal"
+                    tabindex="-1"
+                    aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Tambah Nasabah</h1>
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form
+                                    action="<?= base_url('dashboard/tambahnasabah') ?>"
+                                    method="post"
+                                    enctype="multipart/form-data">
+
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label">Username</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="username"
+                                            name="username"
+                                            placeholder="Masukkan Username Nasabah">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Password</label>
+                                        <input
+                                            type="password"
+                                            class="form-control"
+                                            id="password"
+                                            name="password"
+                                            placeholder="Masukkan Password Nasabah">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="notelp" class="form-label">Nomor HP</label>
+                                        <input
+                                            type="number"
+                                            class="form-control"
+                                            id="notelp"
+                                            name="notelp">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email Nasabah</label>
+                                        <input
+                                            type="number"
+                                            class="form-control"
+                                            id="email"
+                                            name="email">
+                                    </div>
+                                    <div class="">
+                                        <h4>Data Pelengkap</h4>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="nama_lengkap" class="form-label">Nama Lengkap Nasabah</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="nama_lengkap"
+                                            name="nama_lengkap"
+                                            placeholder="Masukkan Nama Lengkap Nasabah">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tempat_lahir" class="form-label">tempat_lahir</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="tempat_lahir"
+                                            name="tempat_lahir"
+                                            placeholder="Masukkan tempat_lahir Nasabah">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tanggal_lahir" class="form-label">tanggal Lahir</label>
+                                        <input
+                                            type="date"
+                                            class="form-control"
+                                            id="tanggal_lahir"
+                                            name="tanggal_lahir">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="alamat" class="form-label">Alamat</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="alamat"
+                                            name="alamat">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Tambah</button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
                         </div>
-                    </form>
+                    </div>
+                </div>
+
+                
+                <!-- Modal Import excel Nasabah -->
+                <div
+                    class="modal fade"
+                    id="importNasabahModal"
+                    tabindex="-1"
+                    aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Import Excel Nasabah</h1>
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form
+                                    action="<?= base_url('dashboard/importnasabah') ?>"
+                                    method="post"
+                                    enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label">Username</label>
+                                        <input
+                                            type="file"
+                                            class="form-control"
+                                            id="excel_nasabah"
+                                            name="excel_nasabah">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Tambah</button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabel Nasabah -->
+                <h3 class="fs-4 mb-3">Tabel Nasabahsaas</h3>
+                <div class="row align-items-start">
+
+                    <div class="col-lg-6">
+                        <form action="<?=base_url()?>dashboard/loadNasabah" method="post">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Enter username/email" id="keyword" name="keyword">
+                                <input type="submit" class="btn btn-primary" id="submit" name="submit" value="search"></input>
+                            </div>
+                        </form>
+                    </div>
+                    <?=$_SESSION['keyword_nasabah'] ?>
+                    <div class="col-lg-4">
+                        <button
+                            type="button"
+                            class="btn btn-success mb-3 ms-0"
+                            data-bs-toggle="modal"
+                            data-bs-target="#tambahNasabahModal">
+                            Tambah Nasabah
+                        </button>
+                        <a
+                            href="<?=base_url()?>uploads/excel/template_banksampah.xlsx"
+                            class="btn btn-primary mb-3 ms-0"
+                            >
+                            Download Excel
+                        </a>
+                        <button
+                            type="button"
+                            class="btn btn-warning mb-3 ms-0"
+                            data-bs-toggle="modal"
+                            data-bs-target="#importNasabahModal">
+                            Import Excel
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="row mx-2">

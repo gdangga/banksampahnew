@@ -104,6 +104,19 @@ class M_dashboard extends CI_Model {
 
         return $result;
     }
+
+    public function getDataSampah($limit, $offset){
+        $this->db->order_by('id', 'desc');
+        $this->db->limit($limit, $offset);
+        $query = $this->db->get('jenis_sampah');
+
+        return $query;
+    }
+
+    public function getSampahCount(){
+        $count = $this->db->count_all('jenis_sampah');
+        return $count;
+    }
     
     
 

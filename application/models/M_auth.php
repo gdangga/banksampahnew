@@ -65,6 +65,31 @@
             ];
         }
 
+        public function validation_fromadmin(){
+            return[
+                [
+                    'field' => 'username',
+                    'label' => 'Username',
+                    'rules' => 'required|min_length[3]|max_length[32]|is_unique[user.username]',
+                ],
+                [
+                    'field' => 'email',
+                    'label' => 'Email',
+                    'rules' => 'valid_email|is_unique[user.email]',
+                ],
+                [
+                    'field' => 'notelp',
+                    'label' => 'Notelp',
+                    'rules' => 'required',
+                ],
+                [
+                    'field' => 'password',
+                    'label' => 'password',
+                    'rules' => 'required|min_length[3]',
+                ],  
+            ];
+        }
+
         public function verify($token) {
             // Check if 'kode_verif' exists
             $user = $this->db->get_where('user', ['kode_verif' => $token])->row();
@@ -111,6 +136,31 @@
                 );
                 return $mailAddress;
             }
+        }
+
+        public function add_fromadmin(){
+            $kode = random_string('alnum', 20);
+            $role = 'user';
+            $data = array(
+                'username' => $this->input->post('username'),
+                'password' => password_hash($this->input->post('password'), PASSWORD_DEFAULT),
+                'nama_lengkap' => $this->input->post('nama_lengkap'),
+                'tempat_lahir' => $this->input->post('tempat_lahir'),
+                'tanggal_lahir' => $this->input->post('tanggal_lahir'),
+                'alamat' => $this->input->post('alamat'),
+                'notelp' => $this->input->post('notelp'),
+                'role' => $role,
+                'kode_verif' => $kode,
+                'email' => $this->input->post('email'),
+                'isVerif' => 1
+            );
+            $this->db->insert('user', $data);
+            return $this->db->insert_id();
+        }
+
+        public function importnasabah($data) {
+            $this->db->insert('user', $data);
+            return $this->db->insert_id();
         }
 
         public function mail($token, $email){

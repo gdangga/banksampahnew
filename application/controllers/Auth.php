@@ -170,6 +170,14 @@ ob_start();
             }
         }
         
+
+        public function tambahNasabah(){
+            $username = $this->input->post('username');
+            $password = $this->input->post('password');
+            $nama_lengkap = $this->input->post('nama_lengkap');
+            $alamat = $this->input->post('alamat');
+
+        }
         
     
     }

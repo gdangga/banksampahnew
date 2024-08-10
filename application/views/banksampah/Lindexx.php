@@ -467,7 +467,7 @@
                         } catch (error) {
                             console.error("Terjadi kesalahan:", error);
                         }
-                }
+                } 
                 
                 
                 // Fungsi untuk menampilkan/menyembunyikan sidebar

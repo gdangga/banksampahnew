@@ -18,83 +18,78 @@
             }
         
             public function tambahBerita() {
-                // Konfigurasi upload
-                $config['upload_path'] = "./uploads"; // Path to the upload folder
-                $config['allowed_types'] = 'gif|jpg|png';  // Allowed file types
-                $config['max_size'] = 204800;  // Maximum file size in KB
-            
-                $this->upload->initialize($config);
-            
-                if (!$this->upload->do_upload('gambarBerita')) {
-                    // Handle upload error, if any
-                    $error = array('error' => $this->upload->display_errors());
-                    print_r($error);  // You might want to handle this more gracefully in a production environment
-                } else {
-                    // Upload successful, get the uploaded file data
-                    $upload_data = $this->upload->data();
-                    $gambarBerita = $upload_data['file_name'];  // Get the uploaded file name
-            
-                    // Call insertBerita function
-                    // Call insertBerita function with the necessary data
-                    $insert = $this->m_dashboard->insertBerita(
-                        $gambarBerita
-                    );
-
-            
-                    // Redirect atau tampilkan pesan sukses
-                    if($insert){
-                        $this->session->set_flashdata('success', 'Artikel berhasil ditambahkan');
-                    } else{
-                        $this->session->set_flashdata('failed', 'Artikel gagal ditambahkan');
-                    }
-                    redirect('dashboard/loadBerita'); // Ganti 'dashboard' dengan nama controller yang sesuai
-                }
-            }
-            
-            
-
-            public function updateBerita() {
-                // Ambil data dari form
-                $id = $this->input->post('id');
+            // Konfigurasi upload
+            $config['upload_path'] = "./uploads"; 
+            $config['allowed_types'] = 'gif|jpg|jpeg|png';  // Tambahkan jpeg
+            $config['max_size'] = 5120;  // Batas dari CodeIgniter kita set 5MB (5120 KB) agar aman
         
-                // Konfigurasi upload (jika diperlukan)
-                $config['upload_path'] = "./uploads";
-                $config['allowed_types'] = 'gif|jpg|png';
-                $config['max_size'] = 204800;
+            $this->upload->initialize($config);
         
-                $this->upload->initialize($config);
+            if (!$this->upload->do_upload('gambarBerita')) {
+                // Jika gagal upload, tangkap pesannya dan lempar ke SweetAlert
+                $error = strip_tags($this->upload->display_errors());
+                $this->session->set_flashdata('failed', 'Gagal upload gambar: ' . $error);
+                redirect('dashboard/loadBerita'); 
+            } else {
+                // Upload successful, get the uploaded file data
+                $upload_data = $this->upload->data();
+                $gambarBerita = $upload_data['file_name'];  
         
-                // Cek apakah ada file gambar yang diupload
-                if ($_FILES['gambarBerita']['name']) {
-                    // Lakukan proses upload gambar
-                    if (!$this->upload->do_upload('gambarBerita')) {
-                        $error = array('error' => $this->upload->display_errors());
-                        print_r($error);
-                        return;
-                    }
-                    
+                // Call insertBerita function
+                $insert = $this->m_dashboard->insertBerita(
+                    $gambarBerita
+                );
         
-                    // Upload successful, get the uploaded file data
-                    $upload_data = $this->upload->data();
-                    $gambarBerita = $upload_data['file_name'];
-                } else {
-                    // Jika tidak ada file yang diupload, gunakan gambar yang sudah ada
-                    $gambarBerita = $this->input->post('gambarBerita_existing');
-                }
-        
-                // Simpan ke Array
-                
-        
-                $update = $this->m_dashboard->updateBerita($id, $gambarBerita);
-                
-                if($update){
-                    $this->session->set_flashdata('success', 'Artikel berhasil diupdate');
-                } else{
-                    $this->session->set_flashdata('failed', 'Artikel gagal diupdate');
-                }
                 // Redirect atau tampilkan pesan sukses
-                redirect('dashboard/loadBerita');
+                if($insert){
+                    $this->session->set_flashdata('success', 'Artikel berhasil ditambahkan!');
+                } else{
+                    $this->session->set_flashdata('failed', 'Database error: Artikel gagal ditambahkan');
+                }
+                redirect('dashboard/loadBerita'); 
             }
+        }
+        
+
+        public function updateBerita() {
+            // Ambil data dari form
+            $id = $this->input->post('id');
+    
+            // Konfigurasi upload
+            $config['upload_path'] = "./uploads";
+            $config['allowed_types'] = 'gif|jpg|jpeg|png';
+            $config['max_size'] = 5120; // 5MB
+    
+            $this->upload->initialize($config);
+    
+            // Cek apakah ada file gambar yang diupload
+            if ($_FILES['gambarBerita']['name']) {
+                // Lakukan proses upload gambar
+                if (!$this->upload->do_upload('gambarBerita')) {
+                    // Jika gagal, tampilkan alert
+                    $error = strip_tags($this->upload->display_errors());
+                    $this->session->set_flashdata('failed', 'Gagal update gambar: ' . $error);
+                    redirect('dashboard/loadBerita');
+                    return;
+                }
+                
+                // Upload successful, get the uploaded file data
+                $upload_data = $this->upload->data();
+                $gambarBerita = $upload_data['file_name'];
+            } else {
+                // Jika tidak ada file yang diupload, gunakan gambar yang sudah ada
+                $gambarBerita = $this->input->post('gambarBerita_existing');
+            }
+    
+            $update = $this->m_dashboard->updateBerita($id, $gambarBerita);
+            
+            if($update){
+                $this->session->set_flashdata('success', 'Artikel berhasil diupdate!');
+            } else{
+                $this->session->set_flashdata('failed', 'Artikel gagal diupdate.');
+            }
+            redirect('dashboard/loadBerita');
+        }
 
             public function tampilkanTabelNasabah() {
                 $data['user'] = $this->m_dashboard->getData(); // Mengambil data nasabah dari model
@@ -173,6 +168,26 @@
             $config['total_rows'] = $this->db->count_all_results();
             $config['per_page'] = 7;
              
+            $config['full_tag_open']    = '<ul class="pagination justify-content-center custom-pagination gap-2 mb-0">';
+            $config['full_tag_close']   = '</ul>';
+            $config['attributes']       = ['class' => 'page-link rounded-pill border-0 shadow-sm'];
+            $config['first_link']       = 'First';
+            $config['last_link']        = 'Last';
+            $config['first_tag_open']   = '<li class="page-item">';
+            $config['first_tag_close']  = '</li>';
+            $config['prev_link']        = '&laquo;';
+            $config['prev_tag_open']    = '<li class="page-item">';
+            $config['prev_tag_close']   = '</li>';
+            $config['next_link']        = '&raquo;';
+            $config['next_tag_open']    = '<li class="page-item">';
+            $config['next_tag_close']   = '</li>';
+            $config['last_tag_open']    = '<li class="page-item">';
+            $config['last_tag_close']   = '</li>';
+            $config['cur_tag_open']     = '<li class="page-item active"><a href="#" class="page-link rounded-pill border-0 shadow-sm">';
+            $config['cur_tag_close']    = '</a></li>';
+            $config['num_tag_open']     = '<li class="page-item">';
+            $config['num_tag_close']    = '</li>';
+
              // Initialize
             $this->pagination->initialize($config);
 
@@ -208,6 +223,26 @@
              $config['total_rows'] = $beritaCount;
              $config['per_page'] = 5;
               
+             $config['full_tag_open']    = '<ul class="pagination justify-content-center custom-pagination gap-2 mb-0">';
+            $config['full_tag_close']   = '</ul>';
+            $config['attributes']       = ['class' => 'page-link rounded-pill border-0 shadow-sm'];
+            $config['first_link']       = 'First';
+            $config['last_link']        = 'Last';
+            $config['first_tag_open']   = '<li class="page-item">';
+            $config['first_tag_close']  = '</li>';
+            $config['prev_link']        = '&laquo;';
+            $config['prev_tag_open']    = '<li class="page-item">';
+            $config['prev_tag_close']   = '</li>';
+            $config['next_link']        = '&raquo;';
+            $config['next_tag_open']    = '<li class="page-item">';
+            $config['next_tag_close']   = '</li>';
+            $config['last_tag_open']    = '<li class="page-item">';
+            $config['last_tag_close']   = '</li>';
+            $config['cur_tag_open']     = '<li class="page-item active"><a href="#" class="page-link rounded-pill border-0 shadow-sm">';
+            $config['cur_tag_close']    = '</a></li>';
+            $config['num_tag_open']     = '<li class="page-item">';
+            $config['num_tag_close']    = '</li>';
+
               // Initialize
              $this->pagination->initialize($config);
  
@@ -245,6 +280,26 @@
             $config['use_page_numbers'] = TRUE;
             $config['total_rows'] = $transaksiCount;
             $config['per_page'] = 7;
+
+            $config['full_tag_open']    = '<ul class="pagination justify-content-center custom-pagination gap-2 mb-0">';
+            $config['full_tag_close']   = '</ul>';
+            $config['attributes']       = ['class' => 'page-link rounded-pill border-0 shadow-sm'];
+            $config['first_link']       = 'First';
+            $config['last_link']        = 'Last';
+            $config['first_tag_open']   = '<li class="page-item">';
+            $config['first_tag_close']  = '</li>';
+            $config['prev_link']        = '&laquo;';
+            $config['prev_tag_open']    = '<li class="page-item">';
+            $config['prev_tag_close']   = '</li>';
+            $config['next_link']        = '&raquo;';
+            $config['next_tag_open']    = '<li class="page-item">';
+            $config['next_tag_close']   = '</li>';
+            $config['last_tag_open']    = '<li class="page-item">';
+            $config['last_tag_close']   = '</li>';
+            $config['cur_tag_open']     = '<li class="page-item active"><a href="#" class="page-link rounded-pill border-0 shadow-sm">';
+            $config['cur_tag_close']    = '</a></li>';
+            $config['num_tag_open']     = '<li class="page-item">';
+            $config['num_tag_close']    = '</li>';
 
              // Initialize
             $this->pagination->initialize($config);
@@ -285,7 +340,26 @@
              $config['use_page_numbers'] = TRUE;
              $config['total_rows'] = $sampahCount;
              $config['per_page'] = 7;
- 
+
+             $config['full_tag_open']    = '<ul class="pagination justify-content-center custom-pagination gap-2 mb-0">';
+            $config['full_tag_close']   = '</ul>';
+            $config['attributes']       = ['class' => 'page-link rounded-pill border-0 shadow-sm'];
+            $config['first_link']       = 'First';
+            $config['last_link']        = 'Last';
+            $config['first_tag_open']   = '<li class="page-item">';
+            $config['first_tag_close']  = '</li>';
+            $config['prev_link']        = '&laquo;';
+            $config['prev_tag_open']    = '<li class="page-item">';
+            $config['prev_tag_close']   = '</li>';
+            $config['next_link']        = '&raquo;';
+            $config['next_tag_open']    = '<li class="page-item">';
+            $config['next_tag_close']   = '</li>';
+            $config['last_tag_open']    = '<li class="page-item">';
+            $config['last_tag_close']   = '</li>';
+            $config['cur_tag_open']     = '<li class="page-item active"><a href="#" class="page-link rounded-pill border-0 shadow-sm">';
+            $config['cur_tag_close']    = '</a></li>';
+            $config['num_tag_open']     = '<li class="page-item">';
+            $config['num_tag_close']    = '</li>';
               // Initialize
              $this->pagination->initialize($config);
  
@@ -320,25 +394,22 @@
             $this->form_validation->set_rules($rules);
             
             if ($this->form_validation->run() == FALSE) {
-                $username = $this->session->userdata('username');
-                $top['username'] = $username;
-
-                $top['adminCount'] = $this->m_dashboard->getAdminCount();
-                $top['nasabahCount'] = $this->m_dashboard->getNasabahCount();
-                $top['transaksiCount'] = $this->m_dashboard->getTransaksiCount();
-                $top['artikelCount'] = $this->m_dashboard->getArtikelCount();
-
-                $this->load->view('template/header');
-                $this->load->view('template/sidebar');
-                $this->load->view('template/topbar', $top);
-                $this->load->view('banksampah/tabeltransaksi');
-                $this->load->view('template/footer');
+                // Jika validasi gagal (misal username sudah ada / kosong)
+                $this->session->set_flashdata('failed', 'Gagal menambah nasabah. Pastikan semua data terisi dengan benar!');
+                redirect('dashboard/loadNasabah');
             } else {             
                 $id_user = $this->M_auth->Add_fromadmin();
+<<<<<<< Updated upstream
 
                 //saldo
                 $saldo = $this->input->post('saldo');
                 $this->M_auth->registerTabunganWithSaldo($id_user, $saldo);
+=======
+                $this->M_auth->registerTabungan($id_user);
+                
+                // Tambahkan pesan SUKSES di sini
+                $this->session->set_flashdata('success', 'Nasabah baru berhasil ditambahkan!');
+>>>>>>> Stashed changes
                 redirect('dashboard/loadNasabah');
             }
         }
@@ -351,8 +422,10 @@
             $this->upload->initialize($config);
 
             if (!$this->upload->do_upload('excel_nasabah')) {
-                $error = array('error' => $this->upload->display_errors());
-                echo 'errrpr';
+                // Jika gagal upload (bukan excel atau terlalu besar)
+                $error = strip_tags($this->upload->display_errors()); // Bersihkan tag HTML dari error bawaan CI
+                $this->session->set_flashdata('failed', 'Gagal import: ' . $error);
+                redirect('dashboard/loadNasabah');
             } else {
                 $data = array('upload_data' => $this->upload->data());
                 $file_path = './uploads/' . $data['upload_data']['file_name'];
@@ -368,8 +441,10 @@
             $spreadsheet = $reader->load($file_path);
             $sheetData = $spreadsheet->getActiveSheet()->toArray();
     
+            $berhasil = 0;
             foreach ($sheetData as $key => $row) {
                 if ($key == 0) continue; // Skip header row
+<<<<<<< Updated upstream
                 $data = array(
                     'username' => $row[1],
                     'password' => password_hash($row[2], PASSWORD_DEFAULT),
@@ -384,9 +459,30 @@
                 $saldo = $row[8];
                 $userid = $this->M_auth->importnasabah($data);
                 $this->M_auth->registerTabunganWithSaldo($userid, $saldo);
+=======
+                
+                // Pengecekan sederhana agar baris kosong tidak ikut terinput
+                if (!empty($row[1])) {
+                    $data = array(
+                        'username' => $row[1],
+                        'password' => $row[2],
+                        'notelp' => $row[3],
+                        'email' => $row[4],
+                        'tempat_lahir' => $row[5],
+                        'tanggal_lahir' => $row[6],
+                        'alamat' => $row[7],
+                        'isverif' => '1'
+                    );
+                    $userid = $this->M_auth->importnasabah($data);
+                    $this->M_auth->registerTabungan($userid);
+                    $berhasil++;
+                }
+>>>>>>> Stashed changes
             }
-            redirect('dashboard/loadNasabah');
             
+            // Tambahkan pesan SUKSES setelah looping selesai
+            $this->session->set_flashdata('success', $berhasil . ' Data Nasabah berhasil diimport dari Excel!');
+            redirect('dashboard/loadNasabah');
         }
 
         public function tambahSampah(){

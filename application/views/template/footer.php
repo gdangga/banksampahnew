@@ -1,36 +1,48 @@
-                </div>
+</div>
             </div>
         </div>
             
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                /*
-                var el = document.getElementById("wrapper");
-                var toggleButton = document.getElementById("menu-toggle");
-                var dashboardLink = document.getElementById("dashboard-link");
+            // Fitur Confirm Logout dengan SweetAlert2
+            function logoutModal() {
+                Swal.fire({
+                    title: 'Keluar Dashboard?',
+                    text: "Sesi admin kamu akan diakhiri.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#009d63',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Logout!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "<?php echo site_url('auth/logout'); ?>";
+                    }
+                })
+            }
             
-                var nasabahmodalcontainer = document.getElementById("nasabah-modal-container");
-                var setor = document.getElementById("setor-content");
-                var tarik = document.getElementById("tarik-content");
-                var pdf = document.getElementById("pdf-content");
-                var nasabah = document.getElementById("nasabah-content");
-                var transaksi = document.getElementById("transaksi-content");
-                var berita = document.getElementById("berita-content");
+            // Fungsi untuk menampilkan/menyembunyikan sidebar
+            function toggleSidebar() {
+                var el = document.getElementById("wrapper");
+                el.classList.toggle("toggled");
+                // Simpan status sidebar ke localStorage
+                localStorage.setItem("sidebarToggled", el.classList.contains("toggled"));
+            }
 
-                dashboardLink.onclick = function () {
-                    console.log('dashboard');
-                  
-                    setor.style.display = "none";
-                    tarik.style.display = "none";
-                    pdf.style.display = "none";
+            // Menerapkan toggle saat menu diklik
+            document.getElementById("menu-toggle").onclick = function () {
+                toggleSidebar();
+            };
 
-                };
-
-                function tampilkanFormTambahBerita() {
-                    var formTambahBerita = document.getElementById("form-tambah-berita");
-                    formTambahBerita.style.display = "block";
+            // Menjaga state sidebar dari localStorage saat reload
+            window.onload = function() {
+                var isToggled = localStorage.getItem("sidebarToggled");
+                var el = document.getElementById("wrapper");
+                if (isToggled === "true") {
+                    el.classList.add("toggled");
                 }
+<<<<<<< Updated upstream
 
                 function tampilkanFormEditBerita() {
                     var formTambahBerita = document.getElementById("form-edit-berita");
@@ -74,8 +86,10 @@
                 }
 
           
+=======
+            }
+>>>>>>> Stashed changes
         </script>
 
     </body>
-
 </html>
